@@ -1,0 +1,14 @@
+# Ignore temporary files and build artifacts
+tmp/
+
+# Python compiled files
+*.pyc
+
+# Audio files
+*.wav
+*.mp3
+
+# LLM debug files
+prompt_*.txt
+llm_output_*.txt
+

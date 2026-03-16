@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAI - AI Mashup Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .upload-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .upload-box {
+            border: 3px dashed #667eea;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8f9ff;
+        }
+
+        .upload-box:hover {
+            border-color: #764ba2;
+            background: #f0f2ff;
+            transform: translateY(-2px);
+        }
+
+        .upload-box.dragover {
+            border-color: #764ba2;
+            background: #e8ebff;
+            transform: scale(1.02);
+        }
+
+        .upload-box.uploaded {
+            border-color: #10b981;
+            background: #ecfdf5;
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+
+        .upload-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .upload-box p {
+            color: #6b7280;
+            font-size: 0.9em;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: white;
+            border-radius: 8px;
+            font-size: 0.9em;
+            color: #374151;
+        }
+
+        .controls {
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        select, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+
+        select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+        }
+
+        button {
+            flex: 1;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e5e7eb;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .progress-section {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: #f8f9ff;
+            border-radius: 15px;
+        }
+
+        .progress-section.active {
+            display: block;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .progress-header h2 {
+            color: #667eea;
+        }
+
+        .progress-percentage {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .progress-bar-container {
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 10px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .status-queued {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-processing {
+            background: #dbeafe;
+            color: #1e40af;
+            animation: pulse 2s infinite;
+        }
+
+        .status-completed {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-failed {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .execution-log {
+            max-height: 400px;
+            overflow-y: auto;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .log-entry {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
+            background: #f8f9ff;
+            border-radius: 5px;
+        }
+
+        .log-entry.current {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+            animation: highlight 1s ease;
+        }
+
+        @keyframes highlight {
+            0% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        .log-timestamp {
+            font-size: 0.8em;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+
+        .log-stage {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .log-message {
+            color: #374151;
+        }
+
+        .result-section {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: #ecfdf5;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .result-section.active {
+            display: block;
+        }
+
+        .result-section h2 {
+            color: #065f46;
+            margin-bottom: 20px;
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .error-section {
+            display: none;
+            margin-top: 30px;
+            padding: 30px;
+            background: #fee2e2;
+            border-radius: 15px;
+        }
+
+        .error-section.active {
+            display: block;
+        }
+
+        .error-section h2 {
+            color: #991b1b;
+            margin-bottom: 15px;
+        }
+
+        .error-message {
+            color: #7f1d1d;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎵 MAI Mashup Creator</h1>
+            <p>Upload two songs and let AI create an amazing mashup</p>
+        </div>
+
+        <div class="main-card">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="upload-box" id="upload1" onclick="document.getElementById('file1').click()">
+                    <div class="upload-icon">🎵</div>
+                    <h3>Track 1</h3>
+                    <p>Click or drag & drop your first song</p>
+                    <input type="file" id="file1" accept="audio/*" style="display: none;">
+                    <div class="file-info hidden" id="file1-info"></div>
+                </div>
+
+                <div class="upload-box" id="upload2" onclick="document.getElementById('file2').click()">
+                    <div class="upload-icon">🎵</div>
+                    <h3>Track 2</h3>
+                    <p>Click or drag & drop your second song</p>
+                    <input type="file" id="file2" accept="audio/*" style="display: none;">
+                    <div class="file-info hidden" id="file2-info"></div>
+                </div>
+            </div>
+
+            <!-- Controls Section -->
+            <div class="controls">
+                <div class="control-group">
+                    <label for="mashup-style">Mashup Style</label>
+                    <select id="mashup-style">
+                        <option value="creative_mashup">🎨 Creative Mashup - Experimental & innovative blend</option>
+                        <option value="dj_mix">🎧 DJ Mix - Smooth professional transitions</option>
+                        <option value="remix">🔥 Remix - Bold reinterpretation</option>
+                        <option value="quick_mix">⚡ Quick Mix - Fast and energetic</option>
+                        <option value="custom">✨ Custom - Your own instructions</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label for="llm-provider">AI Provider</label>
+                    <select id="llm-provider">
+                        <option value="huggingface">🆓 Hugging Face (FREE!)</option>
+                        <option value="openai">OpenAI (GPT-4) - Paid</option>
+                        <option value="anthropic">Anthropic (Claude) - Paid</option>
+                        <option value="local">Local Model</option>
+                    </select>
+                </div>
+
+                <div class="control-group" id="custom-instructions-group" style="display: none;">
+                    <label for="custom-instructions">Custom Instructions</label>
+                    <textarea id="custom-instructions" placeholder="Describe how you want the mashup to sound..."></textarea>
+                </div>
+
+                <div class="button-group">
+                    <button class="btn-primary" id="create-btn" onclick="createMashup()" disabled>
+                        🚀 Create Mashup
+                    </button>
+                    <button class="btn-secondary" id="preview-btn" onclick="previewPlan()" disabled>
+                        👁️ Preview Plan
+                    </button>
+                </div>
+            </div>
+
+            <!-- Progress Section -->
+            <div class="progress-section" id="progress-section">
+                <div class="progress-header">
+                    <h2>Creating Your Mashup...</h2>
+                    <div class="progress-percentage" id="progress-percentage">0%</div>
+                </div>
+                <div class="status-indicator" id="status-indicator">Queued</div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+                </div>
+                <h3 style="margin-bottom: 15px; color: #374151;">Execution Log</h3>
+                <div class="execution-log" id="execution-log">
+                    <p style="color: #6b7280; text-align: center;">Waiting for updates...</p>
+                </div>
+            </div>
+
+            <!-- Result Section -->
+            <div class="result-section" id="result-section">
+                <h2>✨ Your Mashup is Ready!</h2>
+                <a href="#" class="download-btn" id="download-link" download>
+                    📥 Download Mashup
+                </a>
+                <p style="margin-top: 20px; color: #065f46;">
+                    <button class="btn-secondary" onclick="resetUI()" style="display: inline-block; width: auto;">
+                        Create Another Mashup
+                    </button>
+                </p>
+            </div>
+
+            <!-- Error Section -->
+            <div class="error-section" id="error-section">
+                <h2>❌ Something Went Wrong</h2>
+                <div class="error-message" id="error-message"></div>
+                <p style="margin-top: 20px;">
+                    <button class="btn-secondary" onclick="resetUI()">Try Again</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let file1 = null;
+        let file2 = null;
+        let currentTaskId = null;
+        let websocket = null;
+
+        // File upload handling
+        document.getElementById('file1').addEventListener('change', (e) => handleFileSelect(e, 1));
+        document.getElementById('file2').addEventListener('change', (e) => handleFileSelect(e, 2));
+
+        // Drag and drop
+        ['upload1', 'upload2'].forEach((id, index) => {
+            const uploadBox = document.getElementById(id);
+            const fileNum = index + 1;
+
+            uploadBox.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadBox.classList.add('dragover');
+            });
+
+            uploadBox.addEventListener('dragleave', () => {
+                uploadBox.classList.remove('dragover');
+            });
+
+            uploadBox.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadBox.classList.remove('dragover');
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    handleFileDrop(files[0], fileNum);
+                }
+            });
+        });
+
+        // Show/hide custom instructions
+        document.getElementById('mashup-style').addEventListener('change', (e) => {
+            const customGroup = document.getElementById('custom-instructions-group');
+            customGroup.style.display = e.target.value === 'custom' ? 'block' : 'none';
+        });
+
+        function handleFileSelect(event, fileNum) {
+            const file = event.target.files[0];
+            if (file) {
+                handleFileDrop(file, fileNum);
+            }
+        }
+
+        function handleFileDrop(file, fileNum) {
+            if (fileNum === 1) {
+                file1 = file;
+                document.getElementById('file1-info').textContent = `📁 ${file.name}`;
+                document.getElementById('file1-info').classList.remove('hidden');
+                document.getElementById('upload1').classList.add('uploaded');
+            } else {
+                file2 = file;
+                document.getElementById('file2-info').textContent = `📁 ${file.name}`;
+                document.getElementById('file2-info').classList.remove('hidden');
+                document.getElementById('upload2').classList.add('uploaded');
+            }
+            updateButtons();
+        }
+
+        function updateButtons() {
+            const createBtn = document.getElementById('create-btn');
+            const previewBtn = document.getElementById('preview-btn');
+            const enabled = file1 && file2;
+            createBtn.disabled = !enabled;
+            previewBtn.disabled = !enabled;
+        }
+
+        async function createMashup() {
+            if (!file1 || !file2) return;
+
+            const formData = new FormData();
+            formData.append('file_a', file1);
+            formData.append('file_b', file2);
+            formData.append('mashup_style', document.getElementById('mashup-style').value);
+            formData.append('llm_provider', document.getElementById('llm-provider').value);
+            
+            const customInstructions = document.getElementById('custom-instructions').value;
+            if (customInstructions) {
+                formData.append('custom_instructions', customInstructions);
+            }
+
+            // Show progress section
+            document.getElementById('progress-section').classList.add('active');
+            document.getElementById('result-section').classList.remove('active');
+            document.getElementById('error-section').classList.remove('active');
+            document.getElementById('create-btn').disabled = true;
+            document.getElementById('preview-btn').disabled = true;
+
+            try {
+                const response = await fetch('/api/v2/ai-mashup', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    currentTaskId = data.task_id;
+                    connectWebSocket(currentTaskId);
+                    pollTaskStatus(currentTaskId);
+                } else {
+                    showError(data.detail || 'Failed to create mashup');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        async function previewPlan() {
+            if (!file1 || !file2) return;
+
+            const formData = new FormData();
+            formData.append('file_a', file1);
+            formData.append('file_b', file2);
+            formData.append('mashup_style', document.getElementById('mashup-style').value);
+            formData.append('llm_provider', document.getElementById('llm-provider').value);
+            
+            const customInstructions = document.getElementById('custom-instructions').value;
+            if (customInstructions) {
+                formData.append('custom_instructions', customInstructions);
+            }
+
+            document.getElementById('preview-btn').disabled = true;
+            document.getElementById('preview-btn').textContent = '⏳ Generating Preview...';
+
+            try {
+                const response = await fetch('/api/v2/ai-mashup/preview', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`Preview Plan:\n\n${JSON.stringify(data.plan, null, 2)}`);
+                } else {
+                    showError(data.detail || 'Failed to generate preview');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                document.getElementById('preview-btn').disabled = false;
+                document.getElementById('preview-btn').textContent = '👁️ Preview Plan';
+            }
+        }
+
+        function connectWebSocket(taskId) {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/ai-mashup/${taskId}`;
+            
+            websocket = new WebSocket(wsUrl);
+
+            websocket.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                updateProgress(message);
+            };
+
+            websocket.onerror = (error) => {
+                console.error('WebSocket error:', error);
+            };
+
+            websocket.onclose = () => {
+                console.log('WebSocket closed');
+            };
+        }
+
+        async function pollTaskStatus(taskId) {
+            const interval = setInterval(async () => {
+                try {
+                    const response = await fetch(`/api/v2/ai-mashup/${taskId}`);
+                    const data = await response.json();
+
+                    if (data.status === 'completed') {
+                        clearInterval(interval);
+                        showResult(data);
+                    } else if (data.status === 'failed') {
+                        clearInterval(interval);
+                        showError(data.error || 'Mashup creation failed');
+                    }
+                } catch (error) {
+                    console.error('Polling error:', error);
+                }
+            }, 2000);
+        }
+
+        function updateProgress(message) {
+            const percentage = Math.round(message.progress);
+            document.getElementById('progress-percentage').textContent = percentage + '%';
+            document.getElementById('progress-bar').style.width = percentage + '%';
+
+            const statusIndicator = document.getElementById('status-indicator');
+            statusIndicator.textContent = message.status.charAt(0).toUpperCase() + message.status.slice(1);
+            statusIndicator.className = 'status-indicator status-' + message.status;
+
+            if (message.current_stage || message.message) {
+                addLogEntry(message.current_stage, message.message);
+            }
+        }
+
+        function addLogEntry(stage, message) {
+            const logContainer = document.getElementById('execution-log');
+            
+            // Remove "waiting" message if present
+            if (logContainer.children.length === 1 && logContainer.children[0].tagName === 'P') {
+                logContainer.innerHTML = '';
+            }
+
+            // Remove "current" class from all entries
+            document.querySelectorAll('.log-entry').forEach(entry => {
+                entry.classList.remove('current');
+            });
+
+            const entry = document.createElement('div');
+            entry.className = 'log-entry current';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            entry.innerHTML = `
+                <div class="log-timestamp">${timestamp}</div>
+                ${stage ? `<div class="log-stage">${stage}</div>` : ''}
+                <div class="log-message">${message}</div>
+            `;
+
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        function showResult(data) {
+            if (websocket) {
+                websocket.close();
+            }
+
+            document.getElementById('progress-section').classList.remove('active');
+            document.getElementById('result-section').classList.add('active');
+            
+            const downloadLink = document.getElementById('download-link');
+            downloadLink.href = data.mashup_url;
+            downloadLink.download = `mashup_${currentTaskId}.mp3`;
+        }
+
+        function showError(message) {
+            if (websocket) {
+                websocket.close();
+            }
+
+            document.getElementById('progress-section').classList.remove('active');
+            document.getElementById('error-section').classList.add('active');
+            document.getElementById('error-message').textContent = message;
+        }
+
+        function resetUI() {
+            file1 = null;
+            file2 = null;
+            currentTaskId = null;
+            
+            document.getElementById('file1-info').classList.add('hidden');
+            document.getElementById('file2-info').classList.add('hidden');
+            document.getElementById('upload1').classList.remove('uploaded');
+            document.getElementById('upload2').classList.remove('uploaded');
+            document.getElementById('file1').value = '';
+            document.getElementById('file2').value = '';
+            
+            document.getElementById('progress-section').classList.remove('active');
+            document.getElementById('result-section').classList.remove('active');
+            document.getElementById('error-section').classList.remove('active');
+            
+            document.getElementById('execution-log').innerHTML = '<p style="color: #6b7280; text-align: center;">Waiting for updates...</p>';
+            
+            updateButtons();
+        }
+    </script>
+</body>
+</html>
